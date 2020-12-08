@@ -1,6 +1,9 @@
 # from mesa.datacollection import DataCollector
 # from mesa.batchrunner import BatchRunner
 
+ # self.dc = DataCollector(model_reporters={"agent_count":
+        #                             lambda m: m.schedule.get_agent_count()},
+        #                         agent_reporters={"name": lambda a: a.name})
 
 # parameters = {"n_agents": range(0, 5)}
 # batch_run = BatchRunner(PluralityModel, parameters, max_steps=10,

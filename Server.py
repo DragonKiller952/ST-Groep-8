@@ -1,11 +1,17 @@
 from mesa.visualization.modules import CanvasGrid
 from mesa.visualization.ModularVisualization import ModularServer
+from mesa.visualization.UserParam import UserSettableParameter
 
-from Portrayals.VoterPortrayal import voter_portrayal
+from Portrayals.AgentPortrayel import agent_portrayal
 from Models.PluralityModel import PluralityModel
 
-grid = CanvasGrid(voter_portrayal, 10, 10, 500, 500)
+grid = CanvasGrid(agent_portrayal, 10, 10, 500, 500)
+params = {
+    "n_partys": UserSettableParameter("slider", "Party's Amount", 3, 1, 5),
+    "n_voters": UserSettableParameter("slider", "Voters Amount", 10, 1, 50)
+}
 server = ModularServer(PluralityModel,
                        [grid],
-                       "My Model",
-                       {'n_agents': 10})
+                       'Plurality Model',
+                        model_params=params)
+# {'n_partys': 3, 'n_voters': 10}

@@ -1,3 +1,5 @@
+from mesa import Agent
+
 class VoterAgent(Agent):
     def __init__(self, name, model):
         super().__init__(name, model)
@@ -5,4 +7,3 @@ class VoterAgent(Agent):
 
     def step(self):
         print("{} activated".format(self.name))
-        # Whatever else the agent does when activated

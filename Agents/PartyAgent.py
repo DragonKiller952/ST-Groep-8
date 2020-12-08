@@ -7,4 +7,3 @@ class PartyAgent(Agent):
 
     def step(self):
         print("{} activated".format(self.name))
-        # Whatever else the agent does when activated
