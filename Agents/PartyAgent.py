@@ -1,12 +1,9 @@
 from mesa import Agent
 
 class PartyAgent(Agent):
-    def __init__(self, name, coords, model):
+    def __init__(self, name, coords, vote_strategy, model):
         super().__init__(name, model)
         self.name = name
         self.coords = coords
         self.votes = 0
-        self.winner = False
-
-    def step(self):
-        print(f'Party with id {self.name} got {self.votes} votes')
+        self.place = 0

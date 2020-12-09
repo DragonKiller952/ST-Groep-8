@@ -5,6 +5,8 @@ from mesa.space import MultiGrid
 from Agents.PartyAgent import PartyAgent
 from Agents.VoterAgent import VoterAgent
 
+import functools as ft
+
 class PluralityModel(Model):
     def __init__(self, n_partys, n_voters):
         super().__init__(n_partys, n_voters)
@@ -18,22 +20,26 @@ class PluralityModel(Model):
         agents = []
         for i in range(agent_amount):
             coords = (self.random.randrange(0, 10), self.random.randrange(0, 10))
-            agent = agent_type(self.agentId, coords, self)
+            agent = agent_type(self.agentId, coords, self.vote_strategy, self)
             agents.append(agent)
             self.schedule.add(agent)
             self.grid.place_agent(agent, coords)
-            self.agentId += 1
+            self.agentId += 1            
         return agents
 
     def step(self):
         self.schedule.step()
+        self.chose_winner()
 
-        winning_party = None
-        winning_votes = 0
-        for party in self.partys:
-            if winning_votes <= party.votes:
-                winning_party = party
-                winning_votes = party.votes
-        winning_party.winner = True
+    def chose_winner(self):
+        self.partys = sorted(self.partys, key=lambda x: x.votes, reverse=True)
+        for i, party in enumerate(self.partys):
+            party.place = i + 1
+            print(f'Party with id {party.name} got {party.votes} votes and placed {party.place}')
+        winning_party = self.partys[0]
+        print(f'Party with id {winning_party.name} won with {winning_party.votes} votes and is {winning_party.place} place')
 
-        print(f'Party with id {winning_party.name} won with {winning_votes} votes')
+    def vote_strategy(self, other):
+        closest_party = ft.reduce(lambda a, b: a if other.distance_to(a.coords) > other.distance_to(b.coords) else b, self.partys)
+        closest_party.votes += 1
+        other.vote = closest_party

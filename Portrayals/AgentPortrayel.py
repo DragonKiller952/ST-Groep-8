@@ -7,9 +7,9 @@ def agent_portrayal(agent):
                  'Layer': 0,
                  'Color': 'blue',
                  'r': 0.5}
-    
+
     if type(agent) is PartyAgent:
         portrayal['Filled'] = 'true'
-        portrayal['Color'] = 'green' if agent.winner else 'blue'
+        portrayal['Color'] = 'green' if agent.place == 1 else 'blue'        
 
     return portrayal
