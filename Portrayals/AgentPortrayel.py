@@ -10,5 +10,6 @@ def agent_portrayal(agent):
     
     if type(agent) is PartyAgent:
         portrayal['Filled'] = 'true'
+        portrayal['Color'] = 'green' if agent.winner else 'blue'
 
     return portrayal
