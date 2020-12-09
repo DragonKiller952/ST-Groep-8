@@ -40,6 +40,6 @@ class PluralityModel(Model):
         print(f'Party with id {winning_party.name} won with {winning_party.votes} votes and is {winning_party.place} place')
 
     def vote_strategy(self, other):
-        closest_party = ft.reduce(lambda a, b: a if other.distance_to(a.coords) > other.distance_to(b.coords) else b, self.partys)
+        closest_party = ft.reduce(lambda a, b: a if other.distance_to(a.coords) < other.distance_to(b.coords) else b, self.partys)
         closest_party.votes += 1
         other.vote = closest_party
