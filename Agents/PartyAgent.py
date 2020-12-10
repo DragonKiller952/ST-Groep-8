@@ -8,3 +8,6 @@ class PartyAgent(Agent):
         self.color = color
         self.votes = 0
         self.place = 0
+
+    def reset(self):
+        self.votes = 0
