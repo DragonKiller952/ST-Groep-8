@@ -10,42 +10,47 @@ import functools as ft
 class VoteModel(Model):
     def __init__(self, n_partys, n_voters):
         super().__init__(n_partys, n_voters)
-        self.allcoords = []
         self.schedule = BaseScheduler(self)
         self.grid = MultiGrid(100, 100, torus=False)
-        self.colors = ['green', 'red', 'purple', 'orange', 'brown', 'yellow', 'pink', 'cyan', 'lime', 'black']
-        self.usedcolors = []
         self.agentId = 0
-        self.voters = self.spawn_agents(VoterAgent, n_voters)
-        self.partys = self.spawn_agents(PartyAgent, n_partys)
 
-    def spawn_agents(self, agent_type, agent_amount):
+        self.all_colors = ['green', 'red', 'purple', 'orange', 'brown', 'yellow', 'pink', 'cyan', 'lime', 'black']
+        self.used_colors = []
+
+        self.all_coords = list((i, j) for i in range(100) for j in range(100))
+        self.used_coords = []
+        
+        self.voters = self.spawn_agents(VoterAgent, n_voters,  lambda *args: 'blue')
+        self.partys = self.spawn_agents(PartyAgent, n_partys, self.unique_random)
+
+    # Spawning of part and voter agents while setting positions and colors
+    def spawn_agents(self, agent_type, agent_amount, agent_color):
         agents = []
-        for i in range(agent_amount):
-            coords = (self.random.randrange(0, 100), self.random.randrange(0, 100))
-            while coords in self.allcoords:
-                coords = (self.random.randrange(0, 100), self.random.randrange(0, 100))
-            self.allcoords.append(coords)
-
-            if agent_type == PartyAgent:
-                color = self.random.choice(self.colors)
-                while color in self.usedcolors:
-                    color = self.random.choice(self.colors)
-                self.usedcolors.append(color)
-                agent = agent_type(self.agentId, coords, color, self.vote_strategy, self)
-            else:
-                agent = agent_type(self.agentId, coords, self.vote_strategy, self)
+        for i in range(agent_amount):            
+            coords = self.unique_random(self.all_coords, self.used_coords)
+            color = agent_color(self.all_colors, self.used_colors)
+            agent = agent_type(self.agentId, coords, color, self.vote_strategy, self)
             agents.append(agent)
+            
             self.schedule.add(agent)
             self.grid.place_agent(agent, coords)
             self.agentId += 1
         return agents
 
+    # Chosing random without duplicates
+    def unique_random(self, choices, used):
+        choice = self.random.choice(choices)
+        while choice in used:
+            choice = self.random.choice(choices)
+        used.append(choice)
+        return choice
+        
     def step(self):
         self.schedule.step()
         self.chose_winner()
         self.reset_votes()
 
+    # Sorting party's on vote count and excuting custom winner logic methode
     def chose_winner(self):
         self.partys = sorted(self.partys, key=lambda x: x.votes, reverse=True)
         for i, party in enumerate(self.partys):
@@ -59,11 +64,13 @@ class VoteModel(Model):
         return round(value / len(self.voters) * 100, 2)
 
     def custom_strategy(self):
-        self.partys.pop()
+        return
 
+    # Reseting the votes of all party's
     def reset_votes(self):
         [party.reset() for party in self.partys]
 
+    # Default voting strategy for the closest party, voting strategy's gets injected into VoterAgents
     def vote_strategy(self, other):
         closest_party = ft.reduce(lambda a, b: a if other.distance_to(a.coords) < other.distance_to(b.coords) else b, self.partys)
         closest_party.votes += 1

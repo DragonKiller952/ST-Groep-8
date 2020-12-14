@@ -9,5 +9,6 @@ class PartyAgent(Agent):
         self.votes = 0
         self.place = 0
 
+    # Resets the vote count
     def reset(self):
         self.votes = 0

@@ -15,6 +15,7 @@ def agent_portrayal(agent):
         portrayal['Color'] = agent.color
         portrayal['Shape'] = 'rect'
     elif type(agent) is VoterAgent:
-        portrayal['r'] = 0.5
+        portrayal['r'] = 0.5 if agent.prefrence else 0.8
         portrayal['Color'] = agent.vote.color if agent.vote is not None else 'blue'
+
     return portrayal
