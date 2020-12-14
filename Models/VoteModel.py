@@ -46,9 +46,15 @@ class VoteModel(Model):
         return choice
         
     def step(self):
+        self.early_step()
         self.schedule.step()
-        self.chose_winner()
-        self.reset_votes()
+        self.late_step()
+
+    def early_step(self):
+        return
+
+    def late_step(self):
+        return   
 
     # Sorting party's on vote count and excuting custom winner logic methode
     def chose_winner(self):
@@ -58,13 +64,9 @@ class VoteModel(Model):
             print(f'Party with id {party.name}({party.color}) got {party.votes} votes ({self.get_percentage(party.votes)}%) and placed {party.place}')
         winning_party = self.partys[0]
         print(f'Party with id {winning_party.name}({winning_party.color}) won with {winning_party.votes} votes ({self.get_percentage(winning_party.votes)}%) and is {winning_party.place} place')
-        self.custom_strategy()
 
     def get_percentage(self, value):
         return round(value / len(self.voters) * 100, 2)
-
-    def custom_strategy(self):
-        return
 
     # Reseting the votes of all party's
     def reset_votes(self):
