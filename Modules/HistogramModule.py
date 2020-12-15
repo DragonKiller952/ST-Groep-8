@@ -13,4 +13,5 @@ class HistogramModule(VisualizationElement):
 
     def render(self, model):
         all_vote_percentages = [model.get_percentage(party.votes) for party in model.partys]
-        return all_vote_percentages
+        colors = [party.color for party in model.partys]
+        return (all_vote_percentages, colors)

@@ -10,11 +10,7 @@ var HistogramModule = function (bins, labels, canvas_width, canvas_height) {
 
     // Prep the chart properties and series:
     var datasets = [{
-        label: "Data",
-        fillColor: "rgba(151,187,205,0.5)",
-        strokeColor: "rgba(151,187,205,0.8)",
-        highlightFill: "rgba(151,187,205,0.75)",
-        highlightStroke: "rgba(151,187,205,1)",
+        label: "Party's",
         data: []
     }];
 
@@ -28,14 +24,22 @@ var HistogramModule = function (bins, labels, canvas_width, canvas_height) {
     };
 
     var options = {
-        scaleBeginsAtZero: false
+        scales: {
+            yAxes: [{
+                ticks: {
+                    beginAtZero: true
+                }
+            }]
+        }
     };
 
     // Create the chart object
     var chart = new Chart(context, { type: 'bar', data: data, options: options });
 
     this.render = function (data) {
-        datasets[0].data = data;
+        datasets[0].data = data[0];
+        datasets[0].backgroundColor = data[1];
+        chart.data.labels = data[1];
         chart.update();
     };
 
@@ -43,8 +47,4 @@ var HistogramModule = function (bins, labels, canvas_width, canvas_height) {
         chart.destroy();
         chart = new Chart(context, { type: 'bar', data: data, options: options });
     };
-
-    this.changeLabels = function (labels) {
-        data.labels = labels;
-    }
 };
