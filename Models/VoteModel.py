@@ -20,14 +20,17 @@ class VoteModel(Model):
         self.all_coords = list((i, j) for i in range(100) for j in range(100))
         self.used_coords = []
         
-        self.voters = self.spawn_agents(VoterAgent, n_voters,  lambda *args: 'blue')
-        self.partys = self.spawn_agents(PartyAgent, n_partys, self.unique_random)
+        default_spawn_positions = [(12, 75), (30, 60), (40, 80), (40, 90), (60, 80), (50, 35), (60, 35), (65, 15), (75, 40), (90, 45)]
+    
+        self.partys = self.spawn_agents(PartyAgent, n_partys, self.unique_random, default_spawn_positions)
+        self.voters = self.spawn_agents(VoterAgent, n_voters, lambda *args: 'blue')
 
     # Spawning of part and voter agents while setting positions and colors
-    def spawn_agents(self, agent_type, agent_amount, agent_color):
+    def spawn_agents(self, agent_type, agent_amount, agent_color, spawn_positions=None):
         agents = []
         for i in range(agent_amount):            
-            coords = self.unique_random(self.all_coords, self.used_coords)
+            spawn_positions = self.all_coords if spawn_positions == None else spawn_positions
+            coords = self.unique_random(spawn_positions, self.used_coords)
             color = agent_color(self.all_colors, self.used_colors)
             agent = agent_type(self.agentId, coords, color, self.vote_strategy, self)
             agents.append(agent)
