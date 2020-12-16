@@ -12,7 +12,7 @@ class InstantRunoffModel(VoteModel):
 
     # stops the simulation when a party has 50% or more of the votes
     def late_step(self):
-        self.chose_winner()
-        winner = [party for party in self.partys if self.get_percentage(party.votes) > 50]
+        self.compute_winner()
+        winner = [party for party in self.partys if self.get_vote_percentage(party.votes) > 50]
         if len(winner) == 1:
             self.running = False

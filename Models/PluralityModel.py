@@ -10,4 +10,4 @@ class PluralityModel(VoteModel):
 
     # Calculates winner
     def late_step(self):
-        self.chose_winner()
+        self.compute_winner()

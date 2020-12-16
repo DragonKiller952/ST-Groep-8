@@ -11,8 +11,8 @@ class VoterAgent(Agent):
         self.model = model
         
         self.vote = None
-        self.axis = self.random.randrange(0, 6)
-        self.prefrence = False
+        self.axis = self.random.randrange(0, 2)
+        self.chose_prefrence = False
 
     # Calculates distance from self to target
     def distance_to(self, target):

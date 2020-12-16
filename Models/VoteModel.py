@@ -6,8 +6,10 @@ from Agents.PartyAgent import PartyAgent
 from Agents.VoterAgent import VoterAgent
 
 import functools as ft
+import Helper as hp
 
 class VoteModel(Model):
+    # Init of the model with the slider values n_partys and n_voters
     def __init__(self, n_partys, n_voters):
         super().__init__(n_partys, n_voters)
         self.schedule = BaseScheduler(self)
@@ -19,64 +21,60 @@ class VoteModel(Model):
 
         self.all_coords = list((i, j) for i in range(100) for j in range(100))
         self.used_coords = []
-        
-        default_spawn_positions = [(12, 75), (30, 60), (40, 80), (40, 90), (60, 80), (50, 35), (60, 35), (65, 15), (75, 40), (90, 45)]
-    
-        self.partys = self.spawn_agents(PartyAgent, n_partys, self.unique_random, default_spawn_positions)
-        self.voters = self.spawn_agents(VoterAgent, n_voters, lambda *args: 'blue')
+            
+        self.partys = self.spawn_agents(PartyAgent, n_partys, hp.id_coord, hp.id_color)
+        self.voters = self.spawn_agents(VoterAgent, n_voters, hp.unique_random, hp.standard_color)
 
-    # Spawning of part and voter agents while setting positions and colors
-    def spawn_agents(self, agent_type, agent_amount, agent_color, spawn_positions=None):
+    # Spawning of agents (party or voter agents) while setting amount, coords and color 
+    def spawn_agents(self, agent_type, agent_amount, agent_coords, agent_color):
         agents = []
         for i in range(agent_amount):            
-            spawn_positions = self.all_coords if spawn_positions == None else spawn_positions
-            coords = self.unique_random(spawn_positions, self.used_coords)
-            color = agent_color(self.all_colors, self.used_colors)
+            # Generating random agent coordinates and colors and creating a new agent in the simulation
+            coords = agent_coords(self, self.all_coords, self.used_coords)
+            color = agent_color(self, self.all_colors, self.used_colors)
+
+            # Creating a new agent with the generated properties and passing the vote strategy and refrence to this model to the voter agent
             agent = agent_type(self.agentId, coords, color, self.vote_strategy, self)
             agents.append(agent)
             
+            # Placing the agent on the grid and adding them to the schedule and upping the agentId 
             self.schedule.add(agent)
             self.grid.place_agent(agent, coords)
             self.agentId += 1
         return agents
-
-    # Chosing random without duplicates
-    def unique_random(self, choices, used):
-        choice = self.random.choice(choices)
-        while choice in used:
-            choice = self.random.choice(choices)
-        used.append(choice)
-        return choice
         
+    # Step event that acts as an update over time(ticks)
     def step(self):
         self.early_step()
         self.schedule.step()
         self.late_step()
 
+    # Step event before each schedule
     def early_step(self):
         return
 
+    # Step event after each schedule
     def late_step(self):
         return   
 
-    # Sorting party's on vote count and excuting custom winner logic methode
-    def chose_winner(self):
+    # Sorting party's on vote count and chosing winner
+    def compute_winner(self):
         self.partys = sorted(self.partys, key=lambda x: x.votes, reverse=True)
         for i, party in enumerate(self.partys):
             party.place = i + 1
-            print(f'Party with id {party.name}({party.color}) got {party.votes} votes ({self.get_percentage(party.votes)}%) and placed {party.place}')
         winning_party = self.partys[0]
-        print(f'Party with id {winning_party.name}({winning_party.color}) won with {winning_party.votes} votes ({self.get_percentage(winning_party.votes)}%) and is {winning_party.place} place')
+        return winning_party
 
-    def get_percentage(self, value):
-        return round(value / len(self.voters) * 100, 2)
+    # Getting the vote percentage based on the amount of votes
+    def get_vote_percentage(self, votes_amount):
+        return round(votes_amount / len(self.voters) * 100, 2)
 
     # Reseting the votes of all party's
     def reset_votes(self):
         [party.reset() for party in self.partys]
 
-    # Default voting strategy for the closest party, voting strategy's gets injected into VoterAgents
-    def vote_strategy(self, other):
-        closest_party = ft.reduce(lambda a, b: a if other.distance_to(a.coords) < other.distance_to(b.coords) else b, self.partys)
+    # Default voting strategy for chosing the closest party, voting strategy's gets injected into VoterAgents
+    def vote_strategy(self, voting_agent):
+        closest_party = ft.reduce(lambda a, b: a if voting_agent.distance_to(a.coords) < voting_agent.distance_to(b.coords) else b, self.partys)
         closest_party.votes += 1
-        other.vote = closest_party
+        voting_agent.vote = closest_party
